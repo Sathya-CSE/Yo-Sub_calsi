@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yo Calsi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa; /* Light cyan background */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 400px; /* Maximum width for larger screens */
+            padding: 20px;
+            background-color: #00796b; /* Dark teal background for calculator */
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align items */
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px; /* Increased font size */
+            text-align: right;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%; /* Make buttons take full width */
+        }
+
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #eee;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ccc;
+        }
+
+        .history {
+            margin-top: 20px;
+            text-align: left; /* Align history to the left */
+            width: 100%; /* Full width */
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .clear-history-btn, .total-btn {
+            padding: 10px 20px;
+            background-color: #4caf50; /* Green for buttons */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%; /* Full width */
+            transition: background-color 0.3s;
+        }
+
+        .clear-history-btn {
+            background-color: #f44336; /* Red for clear history button */
+        }
+
+        .clear-history-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .total-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .total-display {
+            margin-top: 20px;
+            font-size: 20px;
+            color: white;
+        }
+
+        /* Media query for smaller screens */
+        @media (max-width: 500px) {
+            .input-field {
+                font-size: 20px; /* Slightly smaller font for smaller screens */
+            }
+
+            button {
+                font-size: 16px; /* Smaller buttons on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h1 style="color: white;">Yo Calsi</h1>
+    <input type="text" id="input-field" class="input-field" readonly>
+
+    <div class="buttons">
+        <button onclick="insert(1)">1</button>
+        <button onclick="insert(2)">2</button>
+        <button onclick="insert(3)">3</button>
+        <button onclick="insert('+')">+</button>
+
+        <button onclick="insert(4)">4</button>
+        <button onclick="insert(5)">5</button>
+        <button onclick="insert(6)">6</button>
+        <button onclick="insert('-')">-</button>
+
+        <button onclick="insert(7)">7</button>
+        <button onclick="insert(8)">8</button>
+        <button onclick="insert(9)">9</button>
+        <button onclick="insert('*')">*</button>
+
+        <button onclick="insert(0)">0</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="clearInput()">Clear</button>
+        <button onclick="insert('/')">/</button>
+
+        <button onclick="autoMultiply(1.82)">22</button>
+        <button onclick="autoMultiply(2)">24</button>
+        <button onclick="autoMultiply(3.65)">44</button>
+        <button onclick="autoMultiply(4)">48</button>
+        <button onclick="autoMultiply(4)">48 Pathi</button>
+        
+
+        <!-- Added delete button -->
+        <button onclick="deleteLast()">Delete</button>
+    </div>
+
+    <div class="history">
+        <h3 style="color: white;">History</h3>
+        <div id="history-container"></div>
+        <button class="clear-history-btn" onclick="clearHistory()">Clear History</button>
+    </div>
+
+    <div class="total-display" id="total-display">Total: 0</div>
+</div>
+
+<script>
+    let history = [];
+    let memoryValue = 0; // Store memory value
+
+    function insert(value) {
+        let inputField = document.getElementById('input-field');
+        if (inputField.value === "0" && value !== ".") {
+            inputField.value = value;  // Replace leading zero with the new value
+        } else {
+            inputField.value += value;
+        }
+    }
+
+    function clearInput() {
+        document.getElementById('input-field').value = '';
+    }
+
+    function deleteLast() {
+        let inputField = document.getElementById('input-field');
+        inputField.value = inputField.value.slice(0, -1); // Remove last character
+    }
+
+    function calculate() {
+        let input = document.getElementById('input-field').value;
+        try {
+            if (input.startsWith("0") && !input.startsWith("0.")) {
+                input = parseFloat(input);  // Handle leading zero correctly
+            }
+            let result = eval(input);
+            document.getElementById('input-field').value = result;
+        } catch (e) {
+            document.getElementById('input-field').value = "Error";
+        }
+    }
+
+    function autoMultiply(value) {
+        let input = document.getElementById('input-field').value;
+
+        if (input) {
+            try {
+                let result = eval(input) * value;
+                document.getElementById('input-field').value = result;
+
+                // Add multiplication to history
+                history.push(input + " * " + value + " = " + result);
+                updateHistory();
+            } catch (e) {
+                document.getElementById('input-field').value = "Error";
+            }
+        } else {
+            document.getElementById('input-field').value = value;
+        }
+
+        // Clear the input field after multiplication
+        clearInput();
+    }
+
+    
+    
+    function updateHistory() {
+        let historyContainer = document.getElementById('history-container');
+        historyContainer.innerHTML = ''; // Clear previous history
+        history.forEach((entry, index) => {
+            let historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <input type="checkbox" id="history-item-${index}" data-value="${entry.split('=')[1].trim()}" onclick="calculateTotal()" />
+                <label for="history-item-${index}" style="color: white;">${entry}</label>
+            `;
+            historyContainer.appendChild(historyItem);
+        });
+        calculateTotal(); // Update total whenever history is updated
+    }
+
+    function clearHistory() {
+        history = [];
+        updateHistory();
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        history.forEach((entry, index) => {
+            const checkbox = document.getElementById(`history-item-${index}`);
+            if (checkbox.checked) {
+                total += parseFloat(checkbox.getAttribute('data-value'));
+            }
+        });
+        document.getElementById('total-display').innerText = "Total: " + total; // Display total on the page
+    }
+
+    // Keyboard input support
+    document.addEventListener('keydown', function(event) {
+        const key = event.key;
+
+        // Allow numbers and basic operations
+        if ((key >= 0 && key <= 9) || ['+', '-', '*', '/'].includes(key)) {
+            insert(key);
+        }
+
+        // Allow Enter key for calculation
+        if (key === 'Enter') {
+            calculate();
+        }
+
+        // Allow Backspace key for deleting last character
+        if (key === 'Backspace') {
+            deleteLast();
+        }
+
+        // Clear input on Escape key
+        if (key === 'Escape') {
+            clearInput();
+        }
+    });
+</script>
+</body>
+</html>
